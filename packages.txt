@@ -1,0 +1,8 @@
+spacy
+nltk
+tqdm
+scipy
+scipy-stubs
+scikit-learn
+pre-commit
+nbstripout
