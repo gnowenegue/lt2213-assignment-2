@@ -436,6 +436,38 @@ for (verb,noun,landmark,hilo),score in phrase_score_dict.items():
 # %%
 # (iii) - Compare the cosine similarity scores between vectors of phrases with the average human scores
 # your code should go here
+# (iii) - Compare the cosine similarity scores between vectors of phrases with the average human scores
+# your code should go here
+hilo_list = []
+add_high = []
+add_low = []
+com_high = []
+com_low = []
+human_high = []
+human_low = []
+for (verb,noun,landmark,hilo),score in phrase_score_dict.items():
+    hilo_list.append(hilo)
+#print(hilo_list[:5])
+for hilo, add_score,com_score, human_score in zip(hilo_list, add_score_list,com_score_list, human_score_list):
+    if hilo == "high":
+        add_high.append(add_score)
+        human_high.append(human_score)
+        com_high.append(com_score)
+    else: 
+        add_low.append(add_score)
+        human_low.append(human_score)
+        com_low.append(com_score)
+print("Add model")      
+rho,pval = stats.spearmanr(human_high, add_high)
+print("High:rho = {:.4f},p = {:.4f}".format(rho, pval))
+rho, pval = stats.spearmanr(human_low, add_low)
+print("Low:rho = {:.4f},p = {:.4f}".format(rho, pval))
+
+print("Combined model")      
+rho,pval = stats.spearmanr(human_high, com_high)
+print("High:rho = {:.4f},p = {:.4f}".format(rho, pval))
+rho, pval = stats.spearmanr(human_low, com_low)
+print("Low:rho = {:.4f},p = {:.4f}".format(rho, pval))
 
 # %% [markdown]
 # **Any comments/thoughts should go here:**
@@ -455,6 +487,19 @@ for (verb,noun,landmark,hilo),score in phrase_score_dict.items():
 # ## Statement of contribution
 #
 # Briefly state how many times you have met for discussions, who was present, to what degree each member contributed to the discussion and the final answers you are submitting.
+
+# %% [markdown]
+# We first read through the assignment individually and had a short discussion before the first lab session. We then met in person during the lab sessions. Other than that, we mainly keep in touch via WhatsApp all the time.
+#
+# All the team members were active in participation.
+#
+# Yitong tackled part 4 and partially 5.\
+# Mamitha tackled part 5.\
+# Sana tackled part 2 and 3's code.\
+# Eugene tackled part 2 and 3.
+#
+# Everyone then reviewed each other's work and help to troubleshoot if any problem arises.
+#
 
 # %% [markdown]
 # ## Marks
