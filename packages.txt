@@ -6,3 +6,5 @@ scipy-stubs
 scikit-learn
 pre-commit
 nbstripout
+pandas
+numpy

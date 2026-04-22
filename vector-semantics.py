@@ -8,7 +8,7 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.19.1
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: .venv
 #     language: python
 #     name: python3
 # ---
@@ -186,19 +186,19 @@ svd_similarities = [cosine(w1, w2, svdspace_10k) for w1, w2 in word_pairs]
 rho, pval = stats.spearmanr(semantic_similarity, raw_similarities)
 print("""Raw Similarity vs. Semantic Similarity:
 rho     = {:.4f}
-p-value = {:.4f}""".format(rho, pval))# your code should go here
+p-value = {:.4f}""".format(rho, pval))  # your code should go here
 
 # %%
 rho, pval = stats.spearmanr(semantic_similarity, ppmi_similarities)
 print("""PPMI Similarity vs. Semantic Similarity:
 rho     = {:.4f}
-p-value = {:.4f}""".format(rho, pval))# your code should go here
+p-value = {:.4f}""".format(rho, pval))  # your code should go here
 
 # %%
 rho, pval = stats.spearmanr(semantic_similarity, svd_similarities)
 print("""SVD Similarity vs. Semantic Similarity:
 rho     = {:.4f}
-p-value = {:.4f}""".format(rho, pval))# your code should go here
+p-value = {:.4f}""".format(rho, pval))  # your code should go here
 
 # %% [markdown]
 # **Your answer should go here:**
@@ -213,19 +213,19 @@ p-value = {:.4f}""".format(rho, pval))# your code should go here
 rho, pval = stats.spearmanr(visual_similarity, raw_similarities)
 print("""Raw Similarity vs. Visual Similarity:
 rho     = {:.4f}
-p-value = {:.4f}""".format(rho, pval))# your code should go here# Your code should go here...
+p-value = {:.4f}""".format(rho, pval))  # your code should go here# Your code should go here...
 
 # %%
 rho, pval = stats.spearmanr(visual_similarity, ppmi_similarities)
 print("""PPMI Similarity vs. Visual Similarity:
 rho     = {:.4f}
-p-value = {:.4f}""".format(rho, pval))# your code should go here
+p-value = {:.4f}""".format(rho, pval))  # your code should go here
 
 # %%
 rho, pval = stats.spearmanr(visual_similarity, svd_similarities)
 print("""SVD Similarity vs. Visual Similarity:
 rho     = {:.4f}
-p-value = {:.4f}""".format(rho, pval))# your code should go here
+p-value = {:.4f}""".format(rho, pval))  # your code should go here
 
 # %% [markdown]
 # **Your answer should go here:**
@@ -255,7 +255,7 @@ p-value = {:.4f}""".format(rho, pval))# your code should go here
 # Here is some code that allows us to calculate such comparisons.
 
 # %%
-from scipy.spatial import distance
+
 
 
 def normalize(vec):
@@ -300,8 +300,8 @@ find_similar_to(light - (heavy - long), svdspace_10k)[:10]
 
 # %%
 # Your code should go here...
-see   = normalize(svdspace_10k['see'])
-saw  = normalize(svdspace_10k['saw'])
+see = normalize(svdspace_10k['see'])
+saw = normalize(svdspace_10k['saw'])
 leave = normalize(svdspace_10k['leave'])
 print("see - saw + leave:")
 print(find_similar_to(see - saw + leave, svdspace_10k)[:5])
@@ -313,20 +313,20 @@ print("\nchina - chinese + sweden:")
 print(find_similar_to(china - chinese + sweden, svdspace_10k)[:5])
 
 girl = normalize(svdspace_10k['girl'])
-boy  = normalize(svdspace_10k['boy'])
+boy = normalize(svdspace_10k['boy'])
 woman = normalize(svdspace_10k['woman'])
 print("\ngirl - boy + woman:")
 print(find_similar_to(girl - boy + woman, svdspace_10k)[:5])
 
-beijing  = normalize(svdspace_10k['beijing'])
-china   = normalize(svdspace_10k['china'])
+beijing = normalize(svdspace_10k['beijing'])
+china = normalize(svdspace_10k['china'])
 paris = normalize(svdspace_10k['paris'])
 print("\nbeijing - china + paris:")
 print(find_similar_to(beijing - china + paris, svdspace_10k)[:5])
 
-large   = normalize(svdspace_10k['large'])
+large = normalize(svdspace_10k['large'])
 largest = normalize(svdspace_10k['largest'])
-small   = normalize(svdspace_10k['small'])
+small = normalize(svdspace_10k['small'])
 print("\nlarge - largest + small:")
 print(find_similar_to(large - largest + small, svdspace_10k)[:5])
 
@@ -375,102 +375,152 @@ print(find_similar_to(large - largest + small, svdspace_10k)[:5])
 
 unique_dict = {}
 phrase_score_dict = {}
-vector_space = space_10k
+vector_space = ppmispace_10k
 for index, line in enumerate(open('mitchell_lapata_acl08.txt')):
-    if index>0:
+    if index > 0:
         data = line.strip().split()
         #print(data)
-        verb,noun,landmark,user_input,hilo = data[1],data[2],data[3],data[4],data[5]
-        if verb in vector_space and noun in vector_space and landmark in vector_space :
-            key = (verb,noun,landmark,hilo)
+        verb, noun, landmark, user_input, hilo = data[1].lower(), data[2].lower(), data[3].lower(), data[4].lower(), \
+            data[5].lower()
+        if verb in vector_space and noun in vector_space and landmark in vector_space:
+            key = (verb, noun, landmark, hilo)
             if key in unique_dict:
                 unique_dict[key].append(float(user_input))
             else:
                 unique_dict[key] = [float(user_input)]
 
-for key,value in unique_dict.items():
-    phrase_score_dict[key] = sum(value)/len(value)
+for key, value in unique_dict.items():
+    phrase_score_dict[key] = sum(value) / len(value)
 
-#for key,value in list(phrase_score_dict.items())[:10]:
-    #print(key,value)
- 
+print(f"Total unique phrase: {len(phrase_score_dict)}")
+
 
 # %%
 # (ii) - Compose the vectors of the extracted word pairs by testing different compositional functions
 # your code should go here
+
+from scipy.spatial import distance
+
 add_score_list = []
 mul_score_list = []
 com_score_list = []
 human_score_list = []
+noncomp_score_list = []
 
-from scipy.spatial import distance
 
-def additive_composition(u,v):
-    return u+v
-def multiplicative_composition(u,v):
-    return u*v
-def combined_composition(u,v,alpha=0.3,beta=0.7):
-    return alpha*v+beta*u
-    
-for (verb,noun,landmark,hilo),score in phrase_score_dict.items():
+def additive_composition(u, v):
+    return u + v
+
+
+def multiplicative_composition(u, v):
+    return u * v
+
+
+def combined_composition(u, v, alpha=0.3, beta=0.7):
+    return alpha * v + beta * u
+
+
+for (verb, noun, landmark, hilo), score in phrase_score_dict.items():
     verb_vector = vector_space[verb]
     noun_vector = vector_space[noun]
     landmark_vector = vector_space[landmark]
-#vn = verb and noun , vl = verb and landmark
-    vn_add = additive_composition(verb_vector,noun_vector)
-    vl_add = additive_composition(verb_vector,landmark_vector)
-    #vn_mul = multiplicative_composition(verb_vector,noun_vector)
-    #vl_mul = multiplicative_composition(verb_vector,landmark_vector)
-    vn_com = combined_composition(verb_vector,noun_vector)
-    vl_com = combined_composition(verb_vector,landmark_vector)
-    
+    #vn = verb and noun , vl = verb and landmark
+    vn_add = additive_composition(verb_vector, noun_vector)
+    vl_add = additive_composition(verb_vector, landmark_vector)
+    vn_mul = multiplicative_composition(verb_vector, noun_vector)
+    vl_mul = multiplicative_composition(verb_vector, landmark_vector)
+    vn_com = combined_composition(verb_vector, noun_vector)
+    vl_com = combined_composition(verb_vector, landmark_vector)
+
     #cosine similarity
     sim_fn = lambda a, b: 1 - distance.cosine(a, b)
-    add_score_list.append(sim_fn(vn_add,vl_add))
-    #mul_score_list.append(sim_fn(vn_mul,vl_mul))
-    com_score_list.append(sim_fn(vn_com,vl_com))
+    add_score_list.append(sim_fn(vn_add, vl_add))
+    mul_score_list.append(sim_fn(vn_mul, vl_mul))
+    com_score_list.append(sim_fn(vn_com, vl_com))
     human_score_list.append(score)
+    noncomp_score_list.append(sim_fn(verb_vector, landmark_vector))
 
 
 
 # %%
 # (iii) - Compare the cosine similarity scores between vectors of phrases with the average human scores
 # your code should go here
-# (iii) - Compare the cosine similarity scores between vectors of phrases with the average human scores
-# your code should go here
-hilo_list = []
-add_high = []
-add_low = []
-com_high = []
-com_low = []
-human_high = []
-human_low = []
-for (verb,noun,landmark,hilo),score in phrase_score_dict.items():
-    hilo_list.append(hilo)
-#print(hilo_list[:5])
-for hilo, add_score,com_score, human_score in zip(hilo_list, add_score_list,com_score_list, human_score_list):
-    if hilo == "high":
-        add_high.append(add_score)
-        human_high.append(human_score)
-        com_high.append(com_score)
-    else: 
-        add_low.append(add_score)
-        human_low.append(human_score)
-        com_low.append(com_score)
-print("Add model")      
-rho,pval = stats.spearmanr(human_high, add_high)
-print("High:rho = {:.4f},p = {:.4f}".format(rho, pval))
-rho, pval = stats.spearmanr(human_low, add_low)
-print("Low:rho = {:.4f},p = {:.4f}".format(rho, pval))
 
-print("Combined model")      
-rho,pval = stats.spearmanr(human_high, com_high)
-print("High:rho = {:.4f},p = {:.4f}".format(rho, pval))
-rho, pval = stats.spearmanr(human_low, com_low)
-print("Low:rho = {:.4f},p = {:.4f}".format(rho, pval))
+import numpy as np
+import pandas as pd
+from scipy import stats
+
+print(f"Total unique phrase pairs used: {len(phrase_score_dict)}")
+
+hilo_list = [hilo for (verb, noun, landmark, hilo) in phrase_score_dict]
+add_high, add_low = [], []
+mul_high, mul_low = [], []
+com_high, com_low = [], []
+human_high, human_low = [], []
+noncomp_high, noncomp_low = [], []
+
+for hilo, a, m, c, h, nc in zip(hilo_list, add_score_list, mul_score_list, com_score_list, human_score_list,
+                                noncomp_score_list):
+    if hilo == "high":
+        add_high.append(a)
+        mul_high.append(m)
+        com_high.append(c)
+        human_high.append(h)
+        noncomp_high.append(nc)
+    else:
+        add_low.append(a)
+        mul_low.append(m)
+        com_low.append(c)
+        human_low.append(h)
+        noncomp_low.append(nc)
+
+
+def get_stars(p):
+    if p < 0.01: return "**"
+    if p < 0.05: return "*"
+    return ""
+
+
+models = [
+    ("NonComp", noncomp_high, noncomp_low, noncomp_score_list),
+    ("Add", add_high, add_low, add_score_list),
+    ("Multiply", mul_high, mul_low, mul_score_list),
+    ("Combined", com_high, com_low, com_score_list)
+]
+
+table_results = []
+
+for name, high_list, low_list, full_list in models:
+    mean_high = np.mean(high_list)
+    mean_low = np.mean(low_list)
+
+    rho_val, p_val = stats.spearmanr(human_score_list, full_list)
+
+    table_results.append({
+        "Model": name,
+        "High": f"{mean_high:.2f}",
+        "Low": f"{mean_low:.2f}",
+        "ρ": f"{rho_val:.2f}{get_stars(p_val)}"
+    })
+
+df = pd.DataFrame(table_results)
+df
+
 
 # %% [markdown]
 # **Any comments/thoughts should go here:**
+#
+# # TO REVIEW:
+#
+# 1. Data Coverage and Sample Size (‭‬‭‬)
+# The most significant factor in this experiment is the small sample size. Out of the thousands of entries in the Mitchell & Lapata dataset, only 8 unique phrase pairs were used because many task-specific words (like subside, recoil, or waver) were not present in the 10,000-word Wikipedia vocabulary.
+#     - Impact on Significance: Because the sample is so small, the "bar" for statistical significance is very high. This is why some moderate correlations do not have stars (‭‬), as the math cannot rule out coincidence with so few examples.
+# 2. Model Performance Comparison
+#     - Multiplicative Model (The Winner): This model performed the best, achieving a strong positive correlation of 0.71*. It successfully discriminated between the categories, assigning a higher average similarity to the "High" group (‭‬) than the "Low" group (‭‬). This aligns with the original 2008 paper’s finding that multiplication is often superior for capturing phrase meaning.
+#     - Additive & Combined Models: These models showed negative correlations. This means that for these 8 specific pairs, the models actually ranked phrases in the opposite order of human judgments. In a larger dataset, we would expect these to be positive, but here they are likely skewed by the limited data.
+#     - NonComp (Baseline): This baseline only looked at the verb and could not distinguish between the high and low similarity groups at all, resulting in a correlation of 0.00.
+# 3. Key Takeaway
+# While the small vocabulary size (‭‬) limited our data points, the results still demonstrate that Multiplicative Composition is a robust method for phrase similarity. It was the only compositional model that "agreed" with human intuition by correctly identifying the similarity gap between the High and Low groups.
 
 # %% [markdown]
 # # Literature
@@ -496,7 +546,7 @@ print("Low:rho = {:.4f},p = {:.4f}".format(rho, pval))
 # Yitong tackled part 4 and partially 5.\
 # Mamitha tackled part 5.\
 # Sana tackled part 2 and 3's code.\
-# Eugene tackled part 2 and 3.
+# Eugene tackled part 2, 3 and partially 5.
 #
 # Everyone then reviewed each other's work and help to troubleshoot if any problem arises.
 #
