@@ -410,13 +410,7 @@ print(f"Total unique phrase keys retained: {len(phrase_score_dict)}")
 # (ii) - Compose the vectors of the extracted word pairs by testing different compositional functions
 # your code should go here
 
-from scipy.spatial import distance
-
-add_score_list = []
-mul_score_list = []
-com_score_list = []
-human_score_list = []
-noncomp_score_list = []
+import pandas as pd
 
 
 def additive_composition(u, v):
@@ -428,30 +422,50 @@ def multiplicative_composition(u, v):
 
 
 def combined_composition(u, v, alpha=0.3, beta=0.7):
-    return alpha * v + beta * u
+    return (alpha * v) + (beta * u)
 
 
-for (verb, noun, landmark, hilo), score in phrase_score_dict.items():
-    verb_vector = vector_space[verb]
-    noun_vector = vector_space[noun]
-    landmark_vector = vector_space[landmark]
-    #vn = verb and noun , vl = verb and landmark
-    vn_add = additive_composition(verb_vector, noun_vector)
-    vl_add = additive_composition(verb_vector, landmark_vector)
-    vn_mul = multiplicative_composition(verb_vector, noun_vector)
-    vl_mul = multiplicative_composition(verb_vector, landmark_vector)
-    vn_com = combined_composition(verb_vector, noun_vector)
-    vl_com = combined_composition(verb_vector, landmark_vector)
+def cosine_similarity(vec1, vec2):
+    """
+    Calculates cosine similarity using the same logic and veclen() function from dist_erk.py.
+    """
+    vlen1 = veclen(vec1)
+    vlen2 = veclen(vec2)
 
-    #cosine similarity
-    sim_fn = lambda a, b: 1 - distance.cosine(a, b)
-    add_score_list.append(sim_fn(vn_add, vl_add))
-    mul_score_list.append(sim_fn(vn_mul, vl_mul))
-    com_score_list.append(sim_fn(vn_com, vl_com))
-    human_score_list.append(score)
-    noncomp_score_list.append(sim_fn(verb_vector, landmark_vector))
+    if vlen1 == 0.0 or vlen2 == 0.0:
+        return 0.0
+    else:
+        # using the dot product logic from dist_erk.py
+        dotproduct = np.sum(vec1 * vec2)
+        return dotproduct / (vlen1 * vlen2)
 
 
+results_data = []
+
+for (verb, noun, landmark, hilo), human_avg in phrase_score_dict.items():
+    # get word vectors
+    v_vec = vector_space[verb]
+    n_vec = vector_space[noun]
+    l_vec = vector_space[landmark]
+
+    # store everything in a dictionary for this row
+    row = dict(verb=verb, noun=noun, landmark=landmark, hilo=hilo, human_score=human_avg)
+
+    # calculate similarities for each model using the dist_erk logic
+    row['noncomp_similarity'] = cosine_similarity(v_vec, l_vec)
+    row['add_similarity'] = cosine_similarity(additive_composition(v_vec, n_vec),
+                                              additive_composition(v_vec, l_vec))
+    row['mul_similarity'] = cosine_similarity(multiplicative_composition(v_vec, n_vec),
+                                              multiplicative_composition(v_vec, l_vec))
+    row['com_similarity'] = cosine_similarity(combined_composition(v_vec, n_vec),
+                                              combined_composition(v_vec, l_vec))
+
+    results_data.append(row)
+
+# save results as a DataFrame
+results_df = pd.DataFrame(results_data)
+print(f"Calculated {len(results_df)} similarity rows.")
+results_df.head(n=10)
 
 # %%
 # (iii) - Compare the cosine similarity scores between vectors of phrases with the average human scores
