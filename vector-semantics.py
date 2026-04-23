@@ -371,9 +371,10 @@ print(find_similar_to(large - largest + small, svdspace_10k)[:5])
 
 # %%
 # (i) - Process the data
-# your code should go here
-
 from collections import defaultdict
+
+# Choose which semantic space to use (ppmispace_10k is usually the best performing)
+vector_space = ppmispace_10k
 
 unique_dict = defaultdict(list)
 skipped_count = 0
@@ -402,6 +403,7 @@ with open('mitchell_lapata_acl08.txt', 'r') as f:
 # Calculate average human scores for each unique phrase key
 phrase_score_dict = {k: sum(v) / len(v) for k, v in unique_dict.items()}
 
+print(f"Using vector space: PPMI 10k")
 print(f"Total lines in file: {total_lines}")
 print(f"Lines skipped (missing vocabulary): {skipped_count}")
 print(f"Total unique phrase keys retained: {len(phrase_score_dict)}")
@@ -421,8 +423,8 @@ def multiplicative_composition(u, v):
     return u * v
 
 
-def combined_composition(u, v, alpha=0.3, beta=0.7):
-    return (alpha * v) + (beta * u)
+def combined_composition(verb, noun, verb_weight=0.3, noun_weight=0.7):
+    return (verb * verb_weight) + (noun * noun_weight)
 
 
 def cosine_similarity(vec1, vec2):
