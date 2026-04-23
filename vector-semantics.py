@@ -546,7 +546,7 @@ df
 # Yitong tackled part 4 and partially 5.\
 # Mamitha tackled part 5.\
 # Sana tackled part 2 and 3's code.\
-# Eugene tackled part 2, 3 and partially 5.
+# Eugene tackled part 2, 3 and 5.
 #
 # Everyone then reviewed each other's work and help to troubleshoot if any problem arises.
 #
