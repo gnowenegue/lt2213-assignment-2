@@ -369,12 +369,58 @@ print(find_similar_to(large - largest + small, svdspace_10k)[:5])
 # That is ok, a good interpretation of results and discussion why sometimes they are not as good as you would expect is better than giving the best performing results with little to no analysis.
 #
 
+# %% [markdown]
+# ⚠️ Experimenting with building higher dimension vectors.
+
+# %%
+numdims = 20000
+
+ktw = do_word_count(corpus_dir, numdims)
+
+wi = make_word_index(ktw)  # word index
+words_in_order = sorted(wi.keys(), key=lambda w: wi[w])  # sorted words
+
+print('create count matrices')
+space_20k = make_space(corpus_dir, wi, numdims)
+print('ppmi transform')
+ppmispace_20k = ppmi_transform(space_20k, wi)
+
+# %% [markdown]
+# If you had already built the vectors, skip this.
+
+# %%
+import numpy as np
+
+# save the target words list (useful for keeping track of the vocabulary)
+np.save('./wikipedia/pretrained/ktw_wikipedia20k.npy', ktw)
+
+# save the raw count space
+np.save('./wikipedia/pretrained/raw_wikipedia20k.npy', np.array(space_20k))
+
+# save the PPMI space
+np.save('./wikipedia/pretrained/ppmi_wikipedia20k.npy', np.array(ppmispace_20k))
+
+print("Successfully saved 20k PPMI space to disk.")
+
+# %% [markdown]
+# Load the vectors.
+
+# %%
+print('Please wait...')
+ktw_20k = np.load('./wikipedia/pretrained/ktw_wikipedia20k.npy', allow_pickle=True)
+space_20k = np.load('./wikipedia/pretrained/raw_wikipedia20k.npy', allow_pickle=True).tolist()
+ppmispace_20k = np.load('./wikipedia/pretrained/ppmi_wikipedia20k.npy', allow_pickle=True).tolist()
+
 # %%
 # (i) - Process the data
+# your code should go here
+
 from collections import defaultdict
 
 # Choose which semantic space to use (ppmispace_10k is usually the best performing)
-vector_space = ppmispace_10k
+# vector_space = ppmispace_10k
+vector_space = ppmispace_20k
+vector_space_name = 'PPMI 20k'
 
 unique_dict = defaultdict(list)
 skipped_count = 0
@@ -403,7 +449,7 @@ with open('mitchell_lapata_acl08.txt', 'r') as f:
 # Calculate average human scores for each unique phrase key
 phrase_score_dict = {k: sum(v) / len(v) for k, v in unique_dict.items()}
 
-print(f"Using vector space: PPMI 10k")
+print(f"Using vector space: {vector_space_name}")
 print(f"Total lines in file: {total_lines}")
 print(f"Lines skipped (missing vocabulary): {skipped_count}")
 print(f"Total unique phrase keys retained: {len(phrase_score_dict)}")
