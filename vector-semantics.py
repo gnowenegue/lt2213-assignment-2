@@ -471,66 +471,41 @@ results_df.head(n=10)
 # (iii) - Compare the cosine similarity scores between vectors of phrases with the average human scores
 # your code should go here
 
-import numpy as np
-import pandas as pd
 from scipy import stats
 
-print(f"Total unique phrase pairs used: {len(phrase_score_dict)}")
-
-hilo_list = [hilo for (verb, noun, landmark, hilo) in phrase_score_dict]
-add_high, add_low = [], []
-mul_high, mul_low = [], []
-com_high, com_low = [], []
-human_high, human_low = [], []
-noncomp_high, noncomp_low = [], []
-
-for hilo, a, m, c, h, nc in zip(hilo_list, add_score_list, mul_score_list, com_score_list, human_score_list,
-                                noncomp_score_list):
-    if hilo == "high":
-        add_high.append(a)
-        mul_high.append(m)
-        com_high.append(c)
-        human_high.append(h)
-        noncomp_high.append(nc)
-    else:
-        add_low.append(a)
-        mul_low.append(m)
-        com_low.append(c)
-        human_low.append(h)
-        noncomp_low.append(nc)
-
-
-def get_stars(p):
-    if p < 0.01: return "**"
-    if p < 0.05: return "*"
-    return ""
-
-
+# define the models
+# column names must match from results_df in Part (ii)
 models = [
-    ("NonComp", noncomp_high, noncomp_low, noncomp_score_list),
-    ("Add", add_high, add_low, add_score_list),
-    ("Multiply", mul_high, mul_low, mul_score_list),
-    ("Combined", com_high, com_low, com_score_list)
+    ("NonComp", "noncomp_similarity"),
+    ("Add", "add_similarity"),
+    ("Multiply", "mul_similarity"),
+    ("Combined", "com_similarity")
 ]
 
-table_results = []
+results = []
 
-for name, high_list, low_list, full_list in models:
-    mean_high = np.mean(high_list)
-    mean_low = np.mean(low_list)
+for label, col_name in models:
+    # 1. calculate overall Spearman correlation with human judgments
+    rho, pval = stats.spearmanr(results_df['human_score'], results_df[col_name])
 
-    rho_val, p_val = stats.spearmanr(human_score_list, full_list)
+    # 2. calculate mean similarity for High vs Low categories
+    mean_high = results_df[results_df['hilo'] == 'high'][col_name].mean()
+    mean_low = results_df[results_df['hilo'] == 'low'][col_name].mean()
 
-    table_results.append({
-        "Model": name,
-        "High": f"{mean_high:.2f}",
-        "Low": f"{mean_low:.2f}",
-        "ρ": f"{rho_val:.2f}{get_stars(p_val)}"
+    # 3. formatting stars for significance (p < 0.01 = **, p < 0.05 = *)
+    stars = "**" if pval < 0.01 else ("*" if pval < 0.05 else "")
+
+    results.append({
+        "Model": label,
+        "High Mean": f"{mean_high:.3f}",
+        "Low Mean": f"{mean_low:.3f}",
+        "Spearman ρ": f"{rho:.3f}{stars}",
+        "p-value": f"{pval:.4f}"
     })
 
-df = pd.DataFrame(table_results)
+df = pd.DataFrame(results)
+print("Comparison of Compositional Models against Human Judgments:")
 df
-
 
 # %% [markdown]
 # **Any comments/thoughts should go here:**
