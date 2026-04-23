@@ -255,7 +255,7 @@ p-value = {:.4f}""".format(rho, pval))  # your code should go here
 # Here is some code that allows us to calculate such comparisons.
 
 # %%
-
+from scipy.spatial import distance
 
 
 def normalize(vec):
@@ -373,27 +373,38 @@ print(find_similar_to(large - largest + small, svdspace_10k)[:5])
 # (i) - Process the data
 # your code should go here
 
-unique_dict = {}
-phrase_score_dict = {}
-vector_space = ppmispace_10k
-for index, line in enumerate(open('mitchell_lapata_acl08.txt')):
-    if index > 0:
+from collections import defaultdict
+
+unique_dict = defaultdict(list)
+skipped_count = 0
+total_lines = 0
+
+with open('mitchell_lapata_acl08.txt', 'r') as f:
+    next(f)  # skip header
+
+    for line in f:
+        total_lines += 1
         data = line.strip().split()
-        #print(data)
-        verb, noun, landmark, user_input, hilo = data[1].lower(), data[2].lower(), data[3].lower(), data[4].lower(), \
-            data[5].lower()
-        if verb in vector_space and noun in vector_space and landmark in vector_space:
+        if len(data) < 6:
+            continue
+
+        # normalize to lowercase and extract values
+        verb, noun, landmark = data[1].lower(), data[2].lower(), data[3].lower()
+        user_input, hilo = data[4], data[5].lower()
+
+        # check if all words are present in our vector space vocabulary
+        if all(word in vector_space for word in [verb, noun, landmark]):
             key = (verb, noun, landmark, hilo)
-            if key in unique_dict:
-                unique_dict[key].append(float(user_input))
-            else:
-                unique_dict[key] = [float(user_input)]
+            unique_dict[key].append(float(user_input))
+        else:
+            skipped_count += 1
 
-for key, value in unique_dict.items():
-    phrase_score_dict[key] = sum(value) / len(value)
+# Calculate average human scores for each unique phrase key
+phrase_score_dict = {k: sum(v) / len(v) for k, v in unique_dict.items()}
 
-print(f"Total unique phrase: {len(phrase_score_dict)}")
-
+print(f"Total lines in file: {total_lines}")
+print(f"Lines skipped (missing vocabulary): {skipped_count}")
+print(f"Total unique phrase keys retained: {len(phrase_score_dict)}")
 
 # %%
 # (ii) - Compose the vectors of the extracted word pairs by testing different compositional functions
