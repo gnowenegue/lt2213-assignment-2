@@ -602,6 +602,20 @@ df
 # | 2 | Multiply | 0.083 | 0.058 | 0.169 | 0.5018 |
 # | 3 | Combined | 0.193 | 0.190 | -0.063 | 0.8039 |
 #
+# ### PPMI 25k
+#
+# Using vector space: PPMI 25k\
+# Total lines in file: 3600\
+# Lines skipped (missing vocabulary): 2940\
+# Total unique phrase keys retained: 22
+#
+# |  | Model | High Mean | Low Mean | Spearman ρ | p-value |
+# | :--- | :--- | :--- | :--- | :--- | :--- |
+# | 0 | NonComp | 0.041 | 0.041 | 0.024 | 0.9154 |
+# | 1 | Add | 0.442 | 0.449 | -0.094 | 0.6780 |
+# | 2 | Multiply | 0.122 | 0.070 | 0.276 | 0.2133 |
+# | 3 | Combined | 0.176 | 0.172 | -0.063 | 0.7797 |
+#
 # ### PPMI 50k
 #
 # Using vector space: PPMI 50k\
