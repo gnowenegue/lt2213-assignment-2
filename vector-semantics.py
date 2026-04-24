@@ -373,7 +373,7 @@ print(find_similar_to(large - largest + small, svdspace_10k)[:5])
 # ⚠️ Experimenting with building higher dimension vectors.
 
 # %%
-numdims = 20000
+numdims = 50000
 
 ktw = do_word_count(corpus_dir, numdims)
 
@@ -381,9 +381,9 @@ wi = make_word_index(ktw)  # word index
 words_in_order = sorted(wi.keys(), key=lambda w: wi[w])  # sorted words
 
 print('create count matrices')
-space_20k = make_space(corpus_dir, wi, numdims)
+space_50k = make_space(corpus_dir, wi, numdims)
 print('ppmi transform')
-ppmispace_20k = ppmi_transform(space_20k, wi)
+ppmispace_50k = ppmi_transform(space_50k, wi)
 
 # %% [markdown]
 # If you had already built the vectors, skip this.
@@ -392,15 +392,15 @@ ppmispace_20k = ppmi_transform(space_20k, wi)
 import numpy as np
 
 # save the target words list (useful for keeping track of the vocabulary)
-np.save('./wikipedia/pretrained/ktw_wikipedia20k.npy', ktw)
+np.save('./wikipedia/pretrained/ktw_wikipedia50k.npy', ktw)
 
 # save the raw count space
-np.save('./wikipedia/pretrained/raw_wikipedia20k.npy', np.array(space_20k))
+np.save('./wikipedia/pretrained/raw_wikipedia50k.npy', np.array(space_50k))
 
 # save the PPMI space
-np.save('./wikipedia/pretrained/ppmi_wikipedia20k.npy', np.array(ppmispace_20k))
+np.save('./wikipedia/pretrained/ppmi_wikipedia50k.npy', np.array(ppmispace_50k))
 
-print("Successfully saved 20k PPMI space to disk.")
+print("Successfully saved 50k PPMI space to disk.")
 
 # %% [markdown]
 # Load the vectors.
