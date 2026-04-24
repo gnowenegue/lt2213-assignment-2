@@ -8,7 +8,7 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.19.1
 #   kernelspec:
-#     display_name: .venv
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -293,7 +293,7 @@ find_similar_to(light - (heavy - long), svdspace_10k)[:10]
 # **Your answer should go here:**
 
 # %% [markdown]
-# The output is not what I thought before. The first result is `long` instead of `short`. I guess this may be because `light` and `heavy` are considered as opposite ends of the same weight dimension, so they partly cancel each other out, and the result stays closer to `long`. Some other words, such as `wide` and `length`, are still understandable, because they are also related to physical dimension. Words like `above`、 `around` and `circle` may also be loosely related to spatial dimension, so they are not completely random. However, I was confused by outputs such as `sun`、`just`、`each` and `almost`. For `sun`, I think maybe the meaning of `light` here is not only understood as the opposite of `heavy`, but may also be interpreted as sunlight or brightness. That made me realize that ambiguity in word meaning is a big problem when using vectors, because one vector may mix different senses of the same word. For the other unrelated outputs, they may reflect noise in the vector space or limitations of this analogy operation. Overall, the result is only partly convincing, because a few words are semantically relevant, but the model does not return a clear expected opposite such as `short`.
+# The output is not what we thought before. The first result is `long` instead of `short`. We guess this may be because `light` and `heavy` are considered as opposite ends of the same weight dimension, so they partly cancel each other out, and the result stays closer to `long`. Some other words, such as `wide` and `length`, are still understandable, because they are also related to physical dimension. Words like `above`、 `around` and `circle` may also be loosely related to spatial dimension, so they are not completely random. However, we were confused by outputs such as `sun`、`just`、`each` and `almost`. For `sun`, we think maybe the meaning of `light` here is not only understood as the opposite of `heavy`, but may also be interpreted as sunlight or brightness. That made us realize that ambiguity in word meaning is a big problem when using vectors, because one vector may mix different senses of the same word. For the other unrelated outputs, they may reflect noise in the vector space or limitations of this analogy operation. Overall, the result is only partly convincing, because a few words are semantically relevant, but the model does not return a clear expected opposite such as `short`.
 
 # %% [markdown]
 # Find 5 similar pairs of pairs of words and test them. Hint: google for `word analogies examples`. You can also construct analogies that are not only lexical but also express other relations such as grammatical relations, e.g. `see, saw, leave, ?` or analogies that are based on world knowledge as in `question-words.txt` from the [Google analogy dataset](http://download.tensorflow.org/data/questions-words.txt) described in [3]. Does the resulting vector similarity confirm your expectations? Remember you can only do this test if the words are contained in our vector space with 10,000 dimensions. **[10 marks]**
@@ -558,17 +558,64 @@ df
 # %% [markdown]
 # **Any comments/thoughts should go here:**
 #
-# # TO REVIEW:
+# We tried four models: non-compositional, additive, multiplicative, and combined across four different vector spaces (10k, 20k, 25k, 50k).
 #
-# 1. Data Coverage and Sample Size (‭‬‭‬)
-# The most significant factor in this experiment is the small sample size. Out of the thousands of entries in the Mitchell & Lapata dataset, only 8 unique phrase pairs were used because many task-specific words (like subside, recoil, or waver) were not present in the 10,000-word Wikipedia vocabulary.
-#     - Impact on Significance: Because the sample is so small, the "bar" for statistical significance is very high. This is why some moderate correlations do not have stars (‭‬), as the math cannot rule out coincidence with so few examples.
-# 2. Model Performance Comparison
-#     - Multiplicative Model (The Winner): This model performed the best, achieving a strong positive correlation of 0.71*. It successfully discriminated between the categories, assigning a higher average similarity to the "High" group (‭‬) than the "Low" group (‭‬). This aligns with the original 2008 paper’s finding that multiplication is often superior for capturing phrase meaning.
-#     - Additive & Combined Models: These models showed negative correlations. This means that for these 8 specific pairs, the models actually ranked phrases in the opposite order of human judgments. In a larger dataset, we would expect these to be positive, but here they are likely skewed by the limited data.
-#     - NonComp (Baseline): This baseline only looked at the verb and could not distinguish between the high and low similarity groups at all, resulting in a correlation of 0.00.
-# 3. Key Takeaway
-# While the small vocabulary size (‭‬) limited our data points, the results still demonstrate that Multiplicative Composition is a robust method for phrase similarity. It was the only compositional model that "agreed" with human intuition by correctly identifying the similarity gap between the High and Low groups.
+# What we found:
+#
+# Our best result was actually with the smallest space. Using the 10k PPMI space, the multiplicative model got rho = 0.714 (p = 0.046). The 10k space only contains the most frequent words, so the vectors for words like "bow", "boom" and "gun" are very dense and reliable since they appear thousands of times in the corpus.
+#
+# As we increased the vocabulary to 20k, 25k and 50k, more phrase pairs survived the vocabulary filter (from 8 up to 56) but the results actually got worse. We think this is because the newly included words are rarer, so their vectors are noisier and less reliable.
+#
+# By 50k, multiplicative rho had dropped to -0.140.The additive model was more stable across spaces but never really discriminated well between high and low similarity pairs, with high and low means staying very close together throughout. 
+#
+# We think the paper got much better results mainly because they built space with full vocabulary coverage of all dataset words, giving them all 120 phrase pairs to work with instead of our 8 to 56. With a proper coverage, we would expect our multiplicative results to become more stable and significant too.
+#
+# Overall, multiplicative composition seems to be the best function for this task, but it really depends on having good quality vectors. That feels like the main takeaway from our experiments.
+#
+# ## Results Documentation
+#
+# ### Pretrained PPMI 10k provided
+#
+# Using vector space: PPMI 10k\
+# Total lines in file: 3600\
+# Lines skipped (missing vocabulary): 3360\
+# Total unique phrase keys retained: 8
+#
+# |  | Model | High Mean | Low Mean | Spearman ρ | p-value |
+# | :--- | :--- | :--- | :--- | :--- | :--- |
+# | 0 | NonComp | 0.053 | 0.053 | 0.000 | 1.0000 |
+# | 1 | Add | 0.528 | 0.550 | -0.571 | 0.1390 |
+# | 2 | Multiply | 0.132 | 0.033 | 0.714\* | 0.0465 |
+# | 3 | Combined | 0.224 | 0.218 | 0.167 | 0.6932 |
+#
+# ### PPMI 20k
+#
+# Using vector space: PPMI 20k\
+# Total lines in file: 3600\
+# Lines skipped (missing vocabulary): 3060\
+# Total unique phrase keys retained: 18
+#
+# |  | Model | High Mean | Low Mean | Spearman ρ | p-value |
+# | :--- | :--- | :--- | :--- | :--- | :--- |
+# | 0 | NonComp | 0.039 | 0.039 | -0.042 | 0.8698 |
+# | 1 | Add | 0.481 | 0.490 | -0.116 | 0.6477 |
+# | 2 | Multiply | 0.083 | 0.058 | 0.169 | 0.5018 |
+# | 3 | Combined | 0.193 | 0.190 | -0.063 | 0.8039 |
+#
+# ### PPMI 50k
+#
+# Using vector space: PPMI 50k\
+# Total lines in file: 3600\
+# Lines skipped (missing vocabulary): 1920\
+# Total unique phrase keys retained: 56
+#
+# |  | Model | High Mean | Low Mean | Spearman ρ | p-value |
+# | :--- | :--- | :--- | :--- | :--- | :--- |
+# | 0 | NonComp | 0.029 | 0.029 | 0.236 | 0.0797 |
+# | 1 | Add | 0.364 | 0.348 | 0.162 | 0.2330 |
+# | 2 | Multiply | 0.097 | 0.094 | -0.140 | 0.3044 |
+# | 3 | Combined | 0.129 | 0.122 | 0.158 | 0.2442 |
+#
 
 # %% [markdown]
 # # Literature
